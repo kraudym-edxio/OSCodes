@@ -3,20 +3,21 @@
 #include <pthread.h>
 #include <unistd.h>
 
-#define SIZE 10
+#define SIZE 10 //Define size of the array we will be testing
 
 //Function prototypes for thread use (assignment specification)
+void print_array(int arr[], int start, int end);
 void *sorter(void *params);
 void *merger(void *params);
 
 //Declaring global arrays for thread use (assignment specification)
-//int array[SIZE] = {44, 232, 12, 7, 523, 78, 187, 474, 34, 72};
+int array[SIZE] = {44, 232, 12, 7, 523, 78, 187, 474, 34, 72};
 //int array[SIZE] = {12, 3, 56, 59, 109, 543, 333, 66, 23, 93};
-int array[SIZE] = {45, 667, 345, 123, 44, 19, 56, 68, 176, 221};
+//int array[SIZE] = {45, 667, 345, 123, 44, 19, 56, 6, 221, 60};
 
-int sorted_array[SIZE];
+int sorted_array[SIZE]; //Array to store the results of sorted sublists
 
-//Struct for thread utilization to specify arg
+//Struct for thread utilization to specify arg (from PDF)
 typedef struct {
 	int from_index;
 	int to_index;
@@ -26,9 +27,7 @@ int main() {
 
 	//Display the array of integers
 	printf("\nArray of integers that will be used for merge sort: \n");
-	for (int x = 0; x < SIZE; x++) {
-		printf("%d ", array[x]);
-	}
+	print_array(array, 0, SIZE);
 
 	printf("\n\n");
 
@@ -68,6 +67,16 @@ int main() {
 
 }
 
+//The following function will print the contents of an array
+void print_array(int arr[], int start, int end) {
+
+	for (int x = start; x < end; x++) {
+		printf("%d ", arr[x]);
+	}
+
+}
+
+//The following function will sort a sublist using its starting and ending indices
 void *sorter(void *params) {
 
 	parameters *t_params = (parameters *)params;
@@ -78,9 +87,7 @@ void *sorter(void *params) {
 
 	//Print the sublist that the thread will sort
 	printf("Thread will sort the following sublist: \n");
-	for (int x = start; x < finish; x++) {
-		printf("%d ", array[x]);
-	}
+	print_array(array, start, finish);
 
 	printf("\n");
 	
@@ -91,7 +98,7 @@ void *sorter(void *params) {
 				
 			//If true, a swap will need to take place
 			if (array[y] > array[y + 1]) {
-				int temp = array[y];	
+				int temp = array[y];
 				array[y] = array[y + 1];
 				array[y + 1] = temp;
 			}			
@@ -100,10 +107,7 @@ void *sorter(void *params) {
 	
 	//Copy the sorted sublist to the destination array
 	printf("\nSorted sublist: \n");
-	for (int x = start; x < finish; x++) {
-		printf("%d ", array[x]);
-		sorted_array[x] = array[x];
-	}
+	print_array(array, start, finish);
 
 	printf("\n\n");	
 	
@@ -111,6 +115,7 @@ void *sorter(void *params) {
 
 }
 
+//The following function 
 void *merger(void *params) {
 
 	parameters *t_params = (parameters *)params;
@@ -118,26 +123,54 @@ void *merger(void *params) {
 	//Thread must know start and end index of merged list to sort it
 	int start = t_params -> from_index;
 	int finish = t_params -> to_index + 1;
+	
+	printf("Current state of unsorted array: \n");
+	print_array(array, 0, SIZE);
+	printf("\n\n");
 
-	//Sort merged list using bubble sort 
-	for (int x = start; x < finish; x++) {
+	int temp[SIZE];
+	int mid = 0;
 
-		for (int y = start; y < finish - 1; y++) {
+	for (int x = 0; x < SIZE - 1; x++) {
 
-			if (sorted_array[y] > sorted_array[y + 1]) {
-				//If true, a swap will need to take place	
-				int temp = sorted_array[y];
-				sorted_array[y] = sorted_array[y + 1];
-				sorted_array[y + 1] = temp;
-			}
+		if (array[x] > array[x + 1] ) {
+			mid = x + 1;
+			break;
 		}
 	}
+
+	/*
+	 Need to walk through each sublist within the unsorted array 
+	 and determine the next integer to be allocated within a 
+	 temporary array. The elements of the temporary array are 
+	 then copied to a sorted, global array variable. 
+	 */
+
+	int a = 0, b = mid, c = 0;	
+	while (a < mid && b < finish) {
+
+		if (array[a] < array[b]) 
+			temp[c++] = array[a++];
+		
+		else 
+			temp[c++] = array[b++]; 
+	}
 	
+	//Remaining array elements are added to the temporary array
+	while (a < mid) 
+		temp[c++] = array[a++];
+
+	while (b < finish)
+		temp[c++] = array[b++];
+
+	//Copy elements to sorted_array
+	for (int x = start; x < finish; x++) {
+		sorted_array[x] = temp[x]; 
+	}
+
 	//Display the final merged, sorted array
 	printf("Final merged and sorted array: \n");
-	for (int x = 0; x < SIZE; x++) {
-		printf("%d ", sorted_array[x]);
-	}
+	print_array(sorted_array, 0, SIZE);
 
 	printf("\n\n");
 	
