@@ -11,9 +11,9 @@ void *sorter(void *params);
 void *merger(void *params);
 
 //Declaring global arrays for thread use (assignment specification)
-int array[SIZE] = {44, 232, 12, 7, 523, 78, 187, 474, 34, 72};
+//int array[SIZE] = {44, 232, 12, 7, 523, 78, 187, 474, 34, 72};
 //int array[SIZE] = {12, 3, 56, 59, 109, 543, 333, 66, 23, 93};
-//int array[SIZE] = {45, 667, 345, 123, 44, 19, 56, 6, 221, 60};
+int array[SIZE] = {45, 667, 345, 123, 44, 19, 56, 6, 221, 60};
 
 int sorted_array[SIZE]; //Array to store the results of sorted sublists
 
@@ -128,9 +128,9 @@ void *merger(void *params) {
 	print_array(array, 0, SIZE);
 	printf("\n\n");
 
-	int temp[SIZE];
 	int mid = 0;
 
+	//Locate the middle index of the two sublists 
 	for (int x = 0; x < SIZE - 1; x++) {
 
 		if (array[x] > array[x + 1] ) {
@@ -142,31 +142,25 @@ void *merger(void *params) {
 	/*
 	 Need to walk through each sublist within the unsorted array 
 	 and determine the next integer to be allocated within a 
-	 temporary array. The elements of the temporary array are 
-	 then copied to a sorted, global array variable. 
+	 sorted array global variable.
 	 */
 
 	int a = 0, b = mid, c = 0;	
 	while (a < mid && b < finish) {
 
 		if (array[a] < array[b]) 
-			temp[c++] = array[a++];
+			sorted_array[c++] = array[a++];
 		
 		else 
-			temp[c++] = array[b++]; 
+			sorted_array[c++] = array[b++]; 
 	}
 	
 	//Remaining array elements are added to the temporary array
 	while (a < mid) 
-		temp[c++] = array[a++];
+		sorted_array[c++] = array[a++];
 
 	while (b < finish)
-		temp[c++] = array[b++];
-
-	//Copy elements to sorted_array
-	for (int x = start; x < finish; x++) {
-		sorted_array[x] = temp[x]; 
-	}
+		sorted_array[c++] = array[b++];
 
 	//Display the final merged, sorted array
 	printf("Final merged and sorted array: \n");
